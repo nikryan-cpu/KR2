@@ -14,7 +14,6 @@ class BinaryTree {
 
     public BinaryTree() {
         tree = new ArrayList<>();
-        // Инициализация дерева нулями
         for (int i = 0; i < 15; i++) {
             tree.add(0); // Заполняем массив нулями для первых 15 элементов
         }
@@ -93,7 +92,7 @@ class TreeView extends JFrame {
     public TreeView(BinaryTree model) {
         this.model = model;
         setTitle("Binary Tree Application");
-        setSize(400, 400);
+        setSize(800, 400); // Размер окна
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -103,21 +102,74 @@ class TreeView extends JFrame {
 
         JPanel inputPanel = new JPanel();
         inputField = new JTextField(10);
-        JButton addButton = new JButton("Добавить");
-        JButton saveButton = new JButton("Сохранить");
 
+        // Установка GridLayout для кнопок
+        inputPanel.setLayout(new GridLayout(2, 6, 10, 10)); // 2 ряда, 6 колонок, отступы
+
+        // Создание кнопок
+        JButton addButton = new JButton("Добавить");
+        JButton displayTreeButton = new JButton("Отобразить");
+        JButton displayMinButton = new JButton("Минимум");
+        JButton displayPathButton = new JButton("Путь к мин.");
+        JButton displayPrefixButton = new JButton("Префиксный обход");
+        JButton saveButton = new JButton("Сохранить в файл");
+
+        // Установка фиксированной ширины для кнопок
+        Dimension buttonSize = new Dimension(120, 30);
+        addButton.setPreferredSize(buttonSize);
+        displayTreeButton.setPreferredSize(buttonSize);
+        displayMinButton.setPreferredSize(buttonSize);
+        displayPathButton.setPreferredSize(buttonSize);
+        displayPrefixButton.setPreferredSize(buttonSize);
+        saveButton.setPreferredSize(buttonSize);
+
+        // Добавление текстового поля и кнопок на панель
         inputPanel.add(inputField);
         inputPanel.add(addButton);
+        inputPanel.add(displayTreeButton);
+        inputPanel.add(displayMinButton);
+        inputPanel.add(displayPathButton);
+        inputPanel.add(displayPrefixButton);
         inputPanel.add(saveButton);
+
         add(inputPanel, BorderLayout.SOUTH);
 
+        // Обработчики событий для кнопок
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int value = Integer.parseInt(inputField.getText());
                 model.add(value);
-                updateOutput();
+                outputArea.append("Добавлено: " + value + "\n");
                 inputField.setText("");
+            }
+        });
+
+        displayTreeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateOutput("Дерево: " + model.getTree());
+            }
+        });
+
+        displayMinButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateOutput("Минимальное значение: " + model.min());
+            }
+        });
+
+        displayPathButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateOutput("Путь к минимальному: " + model.moveToMin());
+            }
+        });
+
+        displayPrefixButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateOutput("Префиксный обход: " + model.prefixTraversal());
             }
         });
 
@@ -130,14 +182,8 @@ class TreeView extends JFrame {
         });
     }
 
-    public void updateOutput() {
-        outputArea.setText("");
-        outputArea.append("Дерево: " + model.getTree() + "\n");
-        if (!model.getTree().isEmpty()) {
-            outputArea.append("Минимальное значение: " + model.min() + "\n");
-            outputArea.append("Путь к минимальному: " + model.moveToMin() + "\n");
-            outputArea.append("Префиксный обход: " + model.prefixTraversal() + "\n");
-        }
+    public void updateOutput(String message) {
+        outputArea.append(message + "\n");
     }
 }
 

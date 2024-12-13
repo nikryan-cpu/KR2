@@ -8,11 +8,39 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+//
+interface MinStrategy {
+    Integer findMin(BinaryTreeMyModel tree);
+}
+
+// Concrete Strategy for Stream API
+class StreamMinStrategy implements MinStrategy {
+    @Override
+    public Integer findMin(BinaryTreeMyModel tree) {
+        return tree.getTree().stream()
+                .filter(value -> value != 0) // Игнорируем нули
+                .min(Integer::compareTo)
+                .orElse(null);
+    }
+}
+
+// Concrete Strategy for Leftmost Child
+class LeftmostMinStrategy implements MinStrategy {
+    @Override
+    public Integer findMin(BinaryTreeMyModel tree) {
+        int index = 0;
+        while (index < tree.getTree().size() && tree.getTree().get(index) != 0) {
+            index = 2 * index + 1; // Идем к самому левому сыну
+        }
+        return index > 0 ? tree.getTree().get((index - 1) / 2) : null;
+    }
+}
+
 // Model
-class BinaryTree {
+class BinaryTreeMyModel {
     private ArrayList<Integer> tree;
 
-    public BinaryTree() {
+    public BinaryTreeMyModel() {
         tree = new ArrayList<>();
         for (int i = 0; i < 15; i++) {
             tree.add(0); // Заполняем массив нулями для первых 15 элементов
@@ -50,20 +78,13 @@ class BinaryTree {
         }
     }
 
-    public Integer min() {
-        int index = 0;
-        while (index < tree.size() && tree.get(index) != 0) {
-            index = 2 * index + 1; // идем к самому левому сыну
-        }
-        return index > 0 ? tree.get((index - 1) / 2) : null; // возвращаем значение, если есть
-    }
-
+    // Новый метод для получения пути до минимума
     public List<Integer> moveToMin() {
         List<Integer> path = new ArrayList<>();
         int index = 0;
         while (index < tree.size() && tree.get(index) != 0) {
             path.add(tree.get(index));
-            index = 2 * index + 1; // идем к левому сыну
+            index = 2 * index + 1; // Идем к левому сыну
         }
         return path;
     }
@@ -85,12 +106,19 @@ class BinaryTree {
 
 // View
 class TreeView extends JFrame {
-    private BinaryTree model;
+    private BinaryTreeMyModel model;
     private JTextArea outputArea;
     private JTextField inputField;
 
-    public TreeView(BinaryTree model) {
+    // Стратегии для поиска минимума
+    private MinStrategy streamMinStrategy;
+    private MinStrategy leftmostMinStrategy;
+
+    public TreeView(BinaryTreeMyModel model) {
         this.model = model;
+        this.streamMinStrategy = new StreamMinStrategy();
+        this.leftmostMinStrategy = new LeftmostMinStrategy();
+
         setTitle("Binary Tree Application");
         setSize(800, 400); // Размер окна
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -108,17 +136,19 @@ class TreeView extends JFrame {
 
         // Создание кнопок
         JButton addButton = new JButton("Добавить");
-        JButton displayTreeButton = new JButton("Отобразить");
-        JButton displayMinButton = new JButton("Минимум");
+        JButton displayTreeButton = new JButton("Дерево");
+        JButton displayMinStreamButton = new JButton("Минимум (Stream)");
+        JButton displayMinLeftmostButton = new JButton("Минимум (Левый)");
         JButton displayPathButton = new JButton("Путь к мин.");
-        JButton displayPrefixButton = new JButton("Префиксный обход");
-        JButton saveButton = new JButton("Сохранить в файл");
+        JButton displayPrefixButton = new JButton("Префиксный");
+        JButton saveButton = new JButton("Сохранить");
 
         // Установка фиксированной ширины для кнопок
         Dimension buttonSize = new Dimension(120, 30);
         addButton.setPreferredSize(buttonSize);
         displayTreeButton.setPreferredSize(buttonSize);
-        displayMinButton.setPreferredSize(buttonSize);
+        displayMinStreamButton.setPreferredSize(buttonSize);
+        displayMinLeftmostButton.setPreferredSize(buttonSize);
         displayPathButton.setPreferredSize(buttonSize);
         displayPrefixButton.setPreferredSize(buttonSize);
         saveButton.setPreferredSize(buttonSize);
@@ -127,7 +157,8 @@ class TreeView extends JFrame {
         inputPanel.add(inputField);
         inputPanel.add(addButton);
         inputPanel.add(displayTreeButton);
-        inputPanel.add(displayMinButton);
+        inputPanel.add(displayMinStreamButton);
+        inputPanel.add(displayMinLeftmostButton);
         inputPanel.add(displayPathButton);
         inputPanel.add(displayPrefixButton);
         inputPanel.add(saveButton);
@@ -152,10 +183,19 @@ class TreeView extends JFrame {
             }
         });
 
-        displayMinButton.addActionListener(new ActionListener() {
+        displayMinStreamButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                updateOutput("Минимальное значение: " + model.min());
+                Integer minValue = streamMinStrategy.findMin(model);
+                updateOutput("Минимальное значение (Stream): " + minValue);
+            }
+        });
+
+        displayMinLeftmostButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Integer minValue = leftmostMinStrategy.findMin(model);
+                updateOutput("Минимальное значение (Левый): " + minValue);
             }
         });
 
@@ -190,7 +230,7 @@ class TreeView extends JFrame {
 // Main class
 public class Main {
     public static void main(String[] args) {
-        BinaryTree tree = new BinaryTree();
+        BinaryTreeMyModel tree = new BinaryTreeMyModel();
         TreeView view = new TreeView(tree);
         view.setVisible(true);
     }

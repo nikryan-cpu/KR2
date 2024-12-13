@@ -5,6 +5,7 @@ import strategy.LeftMostMinStrategy;
 import strategy.MinStrategy;
 import strategy.StreamMinStrategy;
 import view.TreeView;
+import visitor.PrintVisitor;
 
 import java.awt.event.ActionListener;
 
@@ -57,6 +58,12 @@ public class TreeController {
         view.addActionListener("Сохранить", e -> {
             model.saveToFile("tree.txt");
             view.appendOutput("Дерево сохранено в файл tree.txt");
+        });
+
+        view.addActionListener("Обход (Visitor)", e -> {
+            PrintVisitor visitor = new PrintVisitor();
+            model.accept(visitor);
+            view.appendOutput("Обход выполнен: " + visitor.getOutput());
         });
     }
 }

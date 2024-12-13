@@ -33,6 +33,7 @@ public class TreeView extends JFrame {
         JButton displayPathButton = new JButton("Путь к мин.");
         JButton displayPrefixButton = new JButton("Префиксный");
         JButton saveButton = new JButton("Сохранить");
+        JButton visitButton = new JButton("Обход (Visitor)"); // Новая кнопка
 
         // Добавление кнопок на панель
         inputPanel.add(addButton);
@@ -42,6 +43,7 @@ public class TreeView extends JFrame {
         inputPanel.add(displayPathButton);
         inputPanel.add(displayPrefixButton);
         inputPanel.add(saveButton);
+        inputPanel.add(visitButton);
 
         add(inputPanel, BorderLayout.SOUTH);
     }
@@ -52,6 +54,7 @@ public class TreeView extends JFrame {
 
     public void appendOutput(String message) {
         outputArea.append(message + "\n");
+        outputArea.setCaretPosition(outputArea.getDocument().getLength());
     }
 
     public void clearInputField() {
